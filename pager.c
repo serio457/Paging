@@ -93,11 +93,11 @@ int main(int argc, char *argv[])
             fileFlag = 1;
         }
     }
-    printf ("Type: %s\n", type);
-    printf ("Frames: %d\n", numFrames);
-    printf ("Memory: %d\n", memorySize);
-    printf ("Pagesize: %d\n", pagesize);
-    printf ("infile: %s\n", infile);
+    printf("Type: %s\n", type);
+    printf("Frames: %d\n", numFrames);
+    printf("Memory: %d\n", memorySize);
+    printf("Pagesize: %d\n", pagesize);
+    printf("infile: %s\n", infile);
 }
 
 //FUNCTIONS
