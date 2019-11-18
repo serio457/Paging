@@ -17,10 +17,16 @@ int main(int argc, char *argv[])
     //
     char type[10] = "FIFO";
     char infile[100] = "pager.in";
+    char memLocationString[100];
+    char processName[20];
     int numFrames = 3;
     int memorySize = 4096;
     int pagesize = 512;
-    BOOL fileFlag = 0;
+    int maxMemAddress, numMemLocations;
+    int memoryLocations[MAX_MEM_LOCATIONS];
+    BOOL fileFlag = FALSE;
+    BOOL textFound = FALSE;
+    FILE *file;
 
     for (int i = 1; i < argc; i++)
     {
@@ -49,6 +55,7 @@ int main(int argc, char *argv[])
             numFrames = isArgNum(argv[i + 1]);
             if (numFrames == -1)
             {
+                printf("ERROR: ARGUMENT MUST BE A POSITIVE, NON-ZERO INTEGER.\n"); // EDIT: PASS IN FLAG NAME FOR CLARIFICATION
                 return 0;
             }
             i++;
@@ -63,6 +70,7 @@ int main(int argc, char *argv[])
             memorySize = isArgNum(argv[i + 1]);
             if (memorySize == -1)
             {
+                printf("ERROR: ARGUMENT MUST BE A POSITIVE, NON-ZERO INTEGER.\n"); // EDIT: PASS IN FLAG NAME FOR CLARIFICATION
                 return 0;
             }
             i++;
@@ -77,6 +85,7 @@ int main(int argc, char *argv[])
             pagesize = isArgNum(argv[i + 1]);
             if (pagesize == -1)
             {
+                printf("ERROR: ARGUMENT MUST BE A POSITIVE, NON-ZERO INTEGER.\n"); // EDIT: PASS IN FLAG NAME FOR CLARIFICATION
                 return 0;
             }
             i++;
@@ -92,12 +101,66 @@ int main(int argc, char *argv[])
             strcpy(infile, argv[i]);
             fileFlag = 1;
         }
+
+        //set the maximum memory location
+        maxMemAddress = memorySize -1;
+
+        file = fopen(infile, "r");
+        if (file)
+        {
+            int currentMemLocation = 0, c;
+            if (fscanf(file, "%d\n", &c) != EOF)
+            {
+                textFound = TRUE;
+                fscanf(file, "%s", processName);
+                while (fscanf(file, "%d\n", &c) != EOF)
+                {
+                    //take in the line & save values
+                    fscanf(file, "%s\n", memLocationString);
+                    printf ("read in: %s\n", memLocationString);
+                    currentMemLocation = isArgNum (memLocationString);
+                    if (currentMemLocation == -1)
+                    {
+                        printf("ERROR: MEMORY LOCATIONS MUST BE A POSITIVE, NON-ZERO INTEGER.\n");
+                        return 0;
+                    }
+                    //test to make sure no vertex name is too long
+                    if (currentMemLocation > maxMemAddress)
+                    {
+                        printf("ERROR: MEMORY LOCATION %d IS GREATER THAN MAXIMUM OF %d\n", currentMemLocation, maxMemAddress);
+                        return 0;
+                    }
+                    printf ("Current Mem Location: %d, Num Memory Locations: %d\n", currentMemLocation, numMemLocations);
+                    //add the read memory location into an array of memory locations
+                    storeMemoryLocations (memoryLocations, numMemLocations, currentMemLocation);
+                    numMemLocations++;
+                }
+            }
+            fclose(file);
+            if (!textFound)
+            {
+                printf("ERROR: INPUT FILE CONTAINS NO TEXT\n");
+                return 0;
+            }
+        }
+        else
+        {
+            //error if an input file is not found
+            printf("ERROR: INPUT FILE NOT FOUND\n");
+            return 0;
+        }
     }
+    printf ("process name: %s\n", processName);
     printf("Type: %s\n", type);
     printf("Frames: %d\n", numFrames);
     printf("Memory: %d\n", memorySize);
     printf("Pagesize: %d\n", pagesize);
     printf("infile: %s\n", infile);
+    
+    for (int i=0; i<numMemLocations; i++)
+    {
+        printf("Memory location %d: %d\n", i, memoryLocations[i]);
+    }
 }
 
 //FUNCTIONS
@@ -113,15 +176,18 @@ int isArgNum(char stringIn[])
     {
         if (!isdigit(numString[j]))
         {
-            printf("ERROR: NON-DIGITS IN ARGUMENT. ARGUMENT MUST BE A POSITIVE, NON-ZERO INTEGER.\n"); // EDIT: PASS IN FLAG NAME FOR CLARIFICATION
             return -1;
         }
     }
     outNum = atoi(stringIn);
     if (outNum <= 0)
     {
-        printf("ERROR: ARGUMENT MUST BE A POSITIVE, NON-ZERO INTEGER\n");
         return -1;
     }
     return outNum;
+}
+
+void storeMemoryLocations(int memoryLocations[], int numMemoryLocations, int currentMemoryLocation)
+{
+    memoryLocations[numMemoryLocations] = currentMemoryLocation;
 }
