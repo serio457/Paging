@@ -109,15 +109,15 @@ int main(int argc, char *argv[])
         if (file)
         {
             int currentMemLocation = 0, c;
-            if (fscanf(file, "%d\n", &c) != EOF)
+            if (fscanf(file, "%d", &c) != EOF)
             {
                 textFound = TRUE;
                 fscanf(file, "%s", processName);
-                while (fscanf(file, "%d\n", &c) != EOF)
+                while (fscanf(file, "%d", &c) != EOF)
                 {
                     //take in the line & save values
-                    fscanf(file, "%s\n", memLocationString);
-                    printf ("read in: %s\n", memLocationString);
+                    fscanf(file, "%s", memLocationString);
+                    printf ("read in: %s", memLocationString);
                     currentMemLocation = isArgNum (memLocationString);
                     if (currentMemLocation == -1)
                     {
