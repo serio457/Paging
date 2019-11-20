@@ -1,0 +1,1 @@
+FIFO(table, pageNum, firstIn)
