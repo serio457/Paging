@@ -141,15 +141,17 @@ int main(int argc, char *argv[])
         if (file)
         {
             int currentMemLocation = 0, c;
-            if (fscanf(file, "%d\n", &c) != EOF)
+            if (fscanf(file, "%d", &c) != EOF)
             {
                 textFound = TRUE;
                 fscanf(file, "%s", processName);
+
                 while (fscanf(file, "%s\n", memLocationString) != EOF)
                 {
                     //take in the line & save values
                     printf("read in: %s\n", memLocationString);
                     currentMemLocation = isArgNum(memLocationString);
+
                     if (currentMemLocation == -1)
                     {
                         printf("ERROR: MEMORY LOCATIONS MUST BE A NON-NEGATIVE INTEGER.\n");
