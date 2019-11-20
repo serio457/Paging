@@ -15,18 +15,24 @@ int main(int argc, char *argv[])
         return 0;
     }
     //
-    char type[10] = "FIFO";
+    // char type[10] = "FIFO";
     char infile[100] = "pager.in";
     char memLocationString[100];
     char processName[20];
     int numFrames = 3;
     int memorySize = 4096;
     int pagesize = 512;
-    int maxMemAddress, numMemLocations;
+    int algCode = 1;
+    int firstIn = 0;
+    int numPageFaults = 0;
+    int maxMemAddress, numMemLocations, numPages;
     int memoryLocations[MAX_MEM_LOCATIONS];
     BOOL fileFlag = FALSE;
     BOOL textFound = FALSE;
+    PAGE pageNum;
     FILE *file;
+
+    PAGETABLE table;
 
     for (int i = 1; i < argc; i++)
     {
@@ -37,12 +43,29 @@ int main(int argc, char *argv[])
                 printf("ERROR: MISSING VALUE\n");
                 return 0;
             }
-            strcpy(type, argv[i + 1]);
-            if (!((!strcasecmp(argv[i + 1], "FIFO")) || (!strcasecmp(argv[i + 1], "LRU")) || (!strcasecmp(argv[i + 1], "MFU")) || (!strcmp(argv[i + 1], "RANDOM"))))
+            //strcpy(type, argv[i + 1]);
+            if (!strcasecmp(argv[i + 1], "FIFO"))
+            {
+                algCode = FIFO_CODE;
+            }
+            if (!strcasecmp(argv[i + 1], "LRU"))
+            {
+                algCode = LRU_CODE;
+            }
+            if (!strcasecmp(argv[i + 1], "MFU"))
+            {
+                algCode = MRU_CODE;
+            }
+            if (!strcmp(argv[i + 1], "RANDOM"))
+            {
+                algCode = RANDOM_CODE;
+            }
+            else
             {
                 printf("ERROR: INVALID TYPE. VALID TYPES INCLUDE: FIFO, LRU, MFU, and RANDOM\n");
                 return 0;
             }
+
             i++;
         }
         if (!strcmp(argv[i], "-frames"))
@@ -103,7 +126,16 @@ int main(int argc, char *argv[])
         }
 
         //set the maximum memory location
-        maxMemAddress = memorySize -1;
+        maxMemAddress = memorySize - 1;
+        if (memorySize % pagesize != 0)
+        {
+            printf("ERROR: MEMORY MUST BE DIVISIBLE BY PAGE SIZE.\n");
+            return 0;
+        }
+        //set the number of pages
+        numPages = memorySize / pagesize;
+        //set the size of our page table (number of frames) EDIT LATER
+        table.size = numFrames;
 
         file = fopen(infile, "r");
         if (file)
@@ -113,15 +145,16 @@ int main(int argc, char *argv[])
             {
                 textFound = TRUE;
                 fscanf(file, "%s", processName);
-                while (fscanf(file, "%d", &c) != EOF)
+
+                while (fscanf(file, "%s\n", memLocationString) != EOF)
                 {
                     //take in the line & save values
-                    fscanf(file, "%s", memLocationString);
-                    printf ("read in: %s", memLocationString);
-                    currentMemLocation = isArgNum (memLocationString);
+                    printf("read in: %s\n", memLocationString);
+                    currentMemLocation = isArgNum(memLocationString);
+
                     if (currentMemLocation == -1)
                     {
-                        printf("ERROR: MEMORY LOCATIONS MUST BE A POSITIVE, NON-ZERO INTEGER.\n");
+                        printf("ERROR: MEMORY LOCATIONS MUST BE A NON-NEGATIVE INTEGER.\n");
                         return 0;
                     }
                     //test to make sure no vertex name is too long
@@ -130,9 +163,8 @@ int main(int argc, char *argv[])
                         printf("ERROR: MEMORY LOCATION %d IS GREATER THAN MAXIMUM OF %d\n", currentMemLocation, maxMemAddress);
                         return 0;
                     }
-                    printf ("Current Mem Location: %d, Num Memory Locations: %d\n", currentMemLocation, numMemLocations);
                     //add the read memory location into an array of memory locations
-                    storeMemoryLocations (memoryLocations, numMemLocations, currentMemLocation);
+                    storeMemoryLocations(memoryLocations, numMemLocations, currentMemLocation);
                     numMemLocations++;
                 }
             }
@@ -150,17 +182,71 @@ int main(int argc, char *argv[])
             return 0;
         }
     }
-    printf ("process name: %s\n", processName);
-    printf("Type: %s\n", type);
-    printf("Frames: %d\n", numFrames);
-    printf("Memory: %d\n", memorySize);
-    printf("Pagesize: %d\n", pagesize);
-    printf("infile: %s\n", infile);
+
+    //initialize frames' valid bit
+    for (int i = 0; i < table.size; i++)
+    {
+        table.frames[i].page = -1;
+        table.frames[i].validBit = FALSE;
+    }
+
+    printf("process name: %s\n", processName);
+    printf("Type: ");
+    if (algCode == FIFO_CODE) {
+        printf("FIFO\n");
+    }
+    if (algCode == LRU_CODE) {
+        printf("LRU\n");
+    }
+    if (algCode == MRU_CODE) {
+        printf("MRU\n");
+    }
+    if (algCode == RANDOM_CODE) {
+        printf("RANDOM\n");
+    }
+
+    //do the paging
+    for (int i = 0; i < numMemLocations; i++)
+    {
+        pageNum = memoryLocations[i] / pagesize;
+        printf ("CURRENT PAGE NUM: %d\n", pageNum);
+        if (!(tableCheck(table, pageNum)))
+        {
+            switch (algCode)
+            {
+            case FIFO_CODE:
+                printf ("Calling FIFO on memLocation %d\n", memoryLocations[i]);
+                FIFO (&table, pageNum, &firstIn);
+                numPageFaults++;
+                break;
+            case LRU_CODE:
+                //LRU(table, pageNum, leastRecentlyUsed);
+                //pageFault++;
+                break;
+            case MRU_CODE:
+                //MRU(table, pageNum, mostRecentlyUsed);
+                //pageFault++;
+                break;
+            case RANDOM_CODE:
+                //RANDOM(table, pageNum);
+                //pageFault++;
+                break;
+            default:
+                printf("ERROR: YOU HAVE ENTERED AN INVALID ALGORITHM\n"); // It should never get here, but black magic exists, so just in case.
+                return 0;
+                break;
+            }
+        }
+    }
+
     
-    for (int i=0; i<numMemLocations; i++)
+
+    /*for (int i = 0; i < numMemLocations; i++)
     {
         printf("Memory location %d: %d\n", i, memoryLocations[i]);
-    }
+    }*/
+
+    printf ("\n\n*** NUMBER OF PAGE FAULTS: %d ***\n\n",numPageFaults);
 }
 
 //FUNCTIONS
@@ -180,7 +266,7 @@ int isArgNum(char stringIn[])
         }
     }
     outNum = atoi(stringIn);
-    if (outNum <= 0)
+    if (outNum < 0)
     {
         return -1;
     }
