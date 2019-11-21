@@ -5,7 +5,7 @@
 #include "Page.h"
 #include "Frame.h"
 #include "pageTable.h"
-#include "pagingAlgorithms.h"
+#include "FIFO.h"
 
 typedef int BOOL;
 #define TRUE 1

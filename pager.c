@@ -192,61 +192,47 @@ int main(int argc, char *argv[])
 
     printf("process name: %s\n", processName);
     printf("Type: ");
-    if (algCode == FIFO_CODE) {
+    if (algCode == FIFO_CODE)
+    {
         printf("FIFO\n");
     }
-    if (algCode == LRU_CODE) {
+    if (algCode == LRU_CODE)
+    {
         printf("LRU\n");
     }
-    if (algCode == MRU_CODE) {
+    if (algCode == MRU_CODE)
+    {
         printf("MRU\n");
     }
-    if (algCode == RANDOM_CODE) {
+    if (algCode == RANDOM_CODE)
+    {
         printf("RANDOM\n");
     }
 
-    //do the paging
-    for (int i = 0; i < numMemLocations; i++)
+    switch (algCode)
     {
-        pageNum = memoryLocations[i] / pagesize;
-        printf ("CURRENT PAGE NUM: %d\n", pageNum);
-        if (!(tableCheck(table, pageNum)))
-        {
-            switch (algCode)
-            {
-            case FIFO_CODE:
-                printf ("Calling FIFO on memLocation %d\n", memoryLocations[i]);
-                FIFO (&table, pageNum, &firstIn);
-                numPageFaults++;
-                break;
-            case LRU_CODE:
-                //LRU(table, pageNum, leastRecentlyUsed);
-                //pageFault++;
-                break;
-            case MRU_CODE:
-                //MRU(table, pageNum, mostRecentlyUsed);
-                //pageFault++;
-                break;
-            case RANDOM_CODE:
-                //RANDOM(table, pageNum);
-                //pageFault++;
-                break;
-            default:
-                printf("ERROR: YOU HAVE ENTERED AN INVALID ALGORITHM\n"); // It should never get here, but black magic exists, so just in case.
-                return 0;
-                break;
-            }
-        }
+    case FIFO_CODE:
+        numPageFaults = FIFO(&table, memoryLocations, numMemLocations, pagesize);
+        break;
+    case LRU_CODE:
+        //LRU(table, pageNum, leastRecentlyUsed);
+        //pageFault++;
+        break;
+    case MRU_CODE:
+        //MRU(table, pageNum, mostRecentlyUsed);
+        //pageFault++;
+        break;
+    case RANDOM_CODE:
+        //RANDOM(table, pageNum);
+        //pageFault++;
+        break;
+    default:
+        printf("ERROR: YOU HAVE ENTERED AN INVALID ALGORITHM\n"); // It should never get here, but black magic exists, so just in case.
+        return 0;
+        break;
     }
 
-    
-
-    /*for (int i = 0; i < numMemLocations; i++)
-    {
-        printf("Memory location %d: %d\n", i, memoryLocations[i]);
-    }*/
-
-    printf ("\n\n*** NUMBER OF PAGE FAULTS: %d ***\n\n",numPageFaults);
+    printf("\n\n*** NUMBER OF PAGE FAULTS: %d ***\n\n", numPageFaults);
 }
 
 //FUNCTIONS
