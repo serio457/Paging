@@ -11,9 +11,10 @@ int MFU(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pages
     int pageFaults = 0;
     int MFU = 0;
     PAGE pageNum;
-    int pageFrequency[table->size];
+    int pageFrequency[table->size]; // array that keeps track of how recently a page has been used
     BOOL faulted = FALSE;
 
+    // initialize all page frequencies to 0
     for (int i = 0; i < table->size; i++)
     {
         pageFrequency[i] = 0;
@@ -21,11 +22,12 @@ int MFU(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pages
 
     for (int j = 0; j < numMemLocations; j++)
     {
-        pageNum = memoryLocations[j] / pagesize;
-        if (!tableCheck(*table, pageNum))
+        pageNum = memoryLocations[j] / pagesize; 
+        if (!tableCheck(*table, pageNum)) // if page number is not in the table... 
         {
             for (int i = 0; i < table->size; i++)
             {
+                // case for when frames are empty
                 if (!(table->frames[i].validBit) && !(tableCheck(*table, pageNum)))
                 {
                     pageFault(&table->frames[i], pageNum);
@@ -34,12 +36,12 @@ int MFU(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pages
                     faulted = TRUE;
                 }
             }
-            MFU = findMFU(pageFrequency, table->size);
+            MFU = findMFU(pageFrequency, table->size); // find page that was most frequently used
             if (!faulted)
             {
-                pageFault(&table->frames[MFU], pageNum);
+                pageFault(&table->frames[MFU], pageNum); 
             }
-            resetFrequency(pageFrequency, MFU);
+            resetFrequency(pageFrequency, MFU); // reset that frame's frequency to 0
 
             pageFaults++;
         }

@@ -15,10 +15,11 @@ int Random(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pa
     for (int j = 0; j < numMemLocations; j++)
     {
         pageNum = memoryLocations[j] / pagesize;
-        if (!tableCheck(*table, pageNum))
+        if (!tableCheck(*table, pageNum)) // if page number is not in the table...
         {
             for (int i = 0; i < table->size; i++)
             {
+                // case for when frames are empty
                 if (!(table->frames[i].validBit) && !(tableCheck(*table, pageNum)))
                 {
                     pageFault(&table->frames[i], pageNum);
@@ -28,7 +29,7 @@ int Random(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pa
             }
             if (!faulted)
             {
-				int rand = getRandom(table->size);
+				int rand = getRandom(table->size); // pick a random frame at which to page fault
                 pageFault(&table->frames[rand], pageNum);
             }
 
