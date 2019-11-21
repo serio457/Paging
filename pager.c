@@ -9,13 +9,14 @@
 
 int main(int argc, char *argv[])
 {
+	srand(time(0));
     if (argc > 11)
     {
         printf("ERROR: TOO MANY ARGUMENTS\n");
         return 0;
     }
     //
-    // char type[10] = "FIFO";
+    //char type[10] = "FIFO";
     char infile[100] = "pager.in";
     char memLocationString[100];
     char processName[20];
@@ -48,15 +49,15 @@ int main(int argc, char *argv[])
             {
                 algCode = FIFO_CODE;
             }
-            if (!strcasecmp(argv[i + 1], "LRU"))
+            else if (!strcasecmp(argv[i + 1], "LRU"))
             {
                 algCode = LRU_CODE;
             }
-            if (!strcasecmp(argv[i + 1], "MFU"))
+            else if (!strcasecmp(argv[i + 1], "MFU"))
             {
-                algCode = MRU_CODE;
+                algCode = MFU_CODE;
             }
-            if (!strcmp(argv[i + 1], "RANDOM"))
+            else if (!strcmp(argv[i + 1], "RANDOM"))
             {
                 algCode = RANDOM_CODE;
             }
@@ -121,8 +122,10 @@ int main(int argc, char *argv[])
             //    printf ("ERROR: TOO MANY FILES SPECIFIED.\n");
             //    return 0;
             //}
+            if (strcmp(argv[i], "pager.in")){
             strcpy(infile, argv[i]);
-            fileFlag = 1;
+            }
+            fileFlag = TRUE;
         }
 
         //set the maximum memory location
@@ -135,50 +138,51 @@ int main(int argc, char *argv[])
         //set the number of pages
         numPages = memorySize / pagesize;
         //set the size of our page table (number of frames) EDIT LATER
+        //test for base 2 stuff
         table.size = numFrames;
+    }
 
-        file = fopen(infile, "r");
-        if (file)
+    file = fopen(infile, "r");
+    if (file)
+    {
+        int currentMemLocation = 0, c;
+        if (fscanf(file, "%d", &c) != EOF)
         {
-            int currentMemLocation = 0, c;
-            if (fscanf(file, "%d\n", &c) != EOF)
+            textFound = TRUE;
+            fscanf(file, "%s", processName);
+            while (fscanf(file, "%s", memLocationString) != EOF)
             {
-                textFound = TRUE;
-                fscanf(file, "%s", processName);
-                while (fscanf(file, "%s\n", memLocationString) != EOF)
+                //take in the line & save values
+                printf("read in: %s\n", memLocationString);
+                currentMemLocation = isArgNum(memLocationString);
+                if (currentMemLocation == -1)
                 {
-                    //take in the line & save values
-                    printf("read in: %s\n", memLocationString);
-                    currentMemLocation = isArgNum(memLocationString);
-                    if (currentMemLocation == -1)
-                    {
-                        printf("ERROR: MEMORY LOCATIONS MUST BE A NON-NEGATIVE INTEGER.\n");
-                        return 0;
-                    }
-                    //test to make sure no vertex name is too long
-                    if (currentMemLocation > maxMemAddress)
-                    {
-                        printf("ERROR: MEMORY LOCATION %d IS GREATER THAN MAXIMUM OF %d\n", currentMemLocation, maxMemAddress);
-                        return 0;
-                    }
-                    //add the read memory location into an array of memory locations
-                    storeMemoryLocations(memoryLocations, numMemLocations, currentMemLocation);
-                    numMemLocations++;
+                    printf("ERROR: MEMORY LOCATIONS MUST BE A NON-NEGATIVE INTEGER.\n");
+                    return 0;
                 }
-            }
-            fclose(file);
-            if (!textFound)
-            {
-                printf("ERROR: INPUT FILE CONTAINS NO TEXT\n");
-                return 0;
+                //test to make sure no vertex name is too long
+                if (currentMemLocation > maxMemAddress)
+                {
+                    printf("ERROR: MEMORY LOCATION %d IS GREATER THAN MAXIMUM OF %d\n", currentMemLocation, maxMemAddress);
+                    return 0;
+                }
+                //add the read memory location into an array of memory locations
+                storeMemoryLocations(memoryLocations, numMemLocations, currentMemLocation);
+                numMemLocations++;
             }
         }
-        else
+        fclose(file);
+        if (!textFound)
         {
-            //error if an input file is not found
-            printf("ERROR: INPUT FILE NOT FOUND\n");
+            printf("ERROR: INPUT FILE CONTAINS NO TEXT\n");
             return 0;
         }
+    }
+    else
+    {
+        //error if an input file is not found
+        printf("ERROR: INPUT FILE NOT FOUND\n");
+        return 0;
     }
 
     //initialize frames' valid bit
@@ -198,9 +202,9 @@ int main(int argc, char *argv[])
     {
         printf("LRU\n");
     }
-    if (algCode == MRU_CODE)
+    if (algCode == MFU_CODE)
     {
-        printf("MRU\n");
+        printf("MFU\n");
     }
     if (algCode == RANDOM_CODE)
     {
@@ -210,19 +214,20 @@ int main(int argc, char *argv[])
     switch (algCode)
     {
     case FIFO_CODE:
+        printf("Doing a FIOFO\n");
         numPageFaults = FIFO(&table, memoryLocations, numMemLocations, pagesize);
         break;
     case LRU_CODE:
-        //LRU(table, pageNum, leastRecentlyUsed);
-        //pageFault++;
+        printf("Doing a LRU\n");
+        numPageFaults = LRU(&table, memoryLocations, numMemLocations, pagesize);
         break;
-    case MRU_CODE:
-        //MRU(table, pageNum, mostRecentlyUsed);
-        //pageFault++;
+    case MFU_CODE:
+        printf("Doing a MFU\n");
+        numPageFaults = MFU(&table, memoryLocations, numMemLocations, pagesize);;
         break;
     case RANDOM_CODE:
-        //RANDOM(table, pageNum);
-        //pageFault++;
+        printf("Doing a MFU\n");
+        numPageFaults = Random(&table, memoryLocations, numMemLocations, pagesize);;
         break;
     default:
         printf("ERROR: YOU HAVE ENTERED AN INVALID ALGORITHM\n"); // It should never get here, but black magic exists, so just in case.

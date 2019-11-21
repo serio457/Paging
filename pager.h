@@ -6,6 +6,9 @@
 #include "Frame.h"
 #include "pageTable.h"
 #include "FIFO.h"
+#include "LRU.h"
+#include "MFU.h"
+#include "Random.h"
 
 typedef int BOOL;
 #define TRUE 1
@@ -15,7 +18,7 @@ typedef int BOOL;
 #define MAX_NUM_FRAMES 500
 #define FIFO_CODE 1
 #define LRU_CODE 2
-#define MRU_CODE 3
+#define MFU_CODE 3
 #define RANDOM_CODE 4
 
 int isArgNum(char stringIn[]);
