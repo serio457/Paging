@@ -8,5 +8,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "pageTable.h"
 
-int getRandom (int indexSize);
+#ifndef RANDOM_H
+#define RANDOM_H
+
+int Random(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pagesize);
+int getRandom(int indexSize);
+
+#endif
