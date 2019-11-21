@@ -16,7 +16,6 @@ int FIFO(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int page
                 {
                     pageFault(&table->frames[i], pageNum);
                     table->frames[i].validBit = TRUE;
-                    printf("on MemLoc %d\n", pageNum);
                 }
             }
             pageFault(&table->frames[firstIn], pageNum);

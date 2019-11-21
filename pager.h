@@ -21,7 +21,8 @@ typedef int BOOL;
 #define MFU_CODE 3
 #define RANDOM_CODE 4
 
+// Tests input for digits, returns -1 if there's an error
 int isArgNum(char stringIn[]);
-//
+// Saves a memory location into the memory access array
 void storeMemoryLocations(int memoryLocations[], int numMemoryLocations, int currentMemoryLocation);
 

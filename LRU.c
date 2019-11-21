@@ -1,5 +1,4 @@
 #include "LRU.h"
-#include <stdio.h>
 
 int LRU(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pagesize)
 {
@@ -24,7 +23,6 @@ int LRU(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pages
                 {
                     pageFault(&table->frames[i], pageNum);
                     table->frames[i].validBit = TRUE;
-                    printf("on MemLoc %d\n", pageNum);
                 }
             }
             LRU = findLRU(pageTimeInTable, table->size);

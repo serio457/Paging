@@ -1,22 +1,23 @@
-// FILE: pager.c
-//
-//Comments
-//We considered adding flags to prevent multiple specifications for a single flag, but
-//instead decided to leave them out since Bash allows for multiple specifcations of the
-//same flag, so ours does too ;)
-//
+//// Fran, Perry, Nick
+//// Fall 2019
+//// CS3074 Project 4
+//// FILE: pager.c
+//// Main Pager file
+//// Takes in optional parameters (pagesize, memory, infile, frames, type) to find the number of page faults using various algorithms (FIFO, LRU, MFU, Random)
+////
+////Comments
+////
+
 #include "pager.h"
 
 int main(int argc, char *argv[])
 {
-	srand(time(0));
+    srand(time(0));
     if (argc > 11)
     {
         printf("ERROR: TOO MANY ARGUMENTS\n");
         return 0;
     }
-    //
-    //char type[10] = "FIFO";
     char infile[100] = "pager.in";
     char memLocationString[100];
     char processName[20];
@@ -28,8 +29,13 @@ int main(int argc, char *argv[])
     int numPageFaults = 0;
     int maxMemAddress, numMemLocations, numPages;
     int memoryLocations[MAX_MEM_LOCATIONS];
+    BOOL pagesizeFlag = FALSE;
+    BOOL framesFlag = FALSE;
+    BOOL typeFlag = FALSE;
+    BOOL memoryFlag = FALSE;
     BOOL fileFlag = FALSE;
     BOOL textFound = FALSE;
+    int verbose = 0;
     PAGE pageNum;
     FILE *file;
 
@@ -39,12 +45,16 @@ int main(int argc, char *argv[])
     {
         if (!strcmp(argv[i], "-type"))
         {
+            if (typeFlag)
+            {
+                printf("ERROR: MULTIPLE INSTANCES OF \'-type\' PARAMETER\n");
+                return 0;
+            }
             if (argc <= i + 1)
             {
                 printf("ERROR: MISSING VALUE\n");
                 return 0;
             }
-            //strcpy(type, argv[i + 1]);
             if (!strcasecmp(argv[i + 1], "FIFO"))
             {
                 algCode = FIFO_CODE;
@@ -66,11 +76,17 @@ int main(int argc, char *argv[])
                 printf("ERROR: INVALID TYPE. VALID TYPES INCLUDE: FIFO, LRU, MFU, and RANDOM\n");
                 return 0;
             }
-
+            typeFlag = TRUE;
             i++;
+            continue;
         }
         if (!strcmp(argv[i], "-frames"))
         {
+            if (framesFlag)
+            {
+                printf("ERROR: MULTIPLE INSTANCES OF \'-frames\' PARAMETER\n");
+                return 0;
+            }
             if (argc <= i + 1)
             {
                 printf("ERROR: MISSING VALUE\n");
@@ -83,9 +99,15 @@ int main(int argc, char *argv[])
                 return 0;
             }
             i++;
+            continue;
         }
         if (!strcmp(argv[i], "-memory"))
         {
+            if (memoryFlag)
+            {
+                printf("ERROR: MULTIPLE INSTANCES OF \'-memory\' PARAMETER\n");
+                return 0;
+            }
             if (argc <= i + 1)
             {
                 printf("ERROR: MISSING VALUE\n");
@@ -97,10 +119,17 @@ int main(int argc, char *argv[])
                 printf("ERROR: ARGUMENT MUST BE A POSITIVE, NON-ZERO INTEGER.\n"); // EDIT: PASS IN FLAG NAME FOR CLARIFICATION
                 return 0;
             }
+            memoryFlag = TRUE;
             i++;
+            continue;
         }
         if (!strcmp(argv[i], "-pagesize"))
         {
+            if (pagesizeFlag)
+            {
+                printf("ERROR: MULTIPLE INSTANCES OF \'-pagesize\' PARAMETER\n");
+                return 0;
+            }
             if (argc <= i + 1)
             {
                 printf("ERROR: MISSING VALUE\n");
@@ -113,33 +142,46 @@ int main(int argc, char *argv[])
                 return 0;
             }
             i++;
+            continue;
+        }
+        if (!strncmp(argv[i], "-v", 2))
+        {
+            if (verbose) {
+                printf("ERROR: MULTIPLE INSTANCES OF \'VERBOSE\' FLAG\n");
+                return 0;
+            }
+            verbose = 1; //basic verbose level
+            if (!strcmp(argv[i], "-vv"))
+            {
+                verbose = 2; //advanced verbose level
+            }
+            continue;
+        }
+        if (!strcmp(argv[i], "-help")){
+            printf("**Placeholder help flag**\n");
         }
         //checking for infile argument by seeing if previous argument had a hyphen
-        if (strncmp(argv[i - 1], "-", 1))
+        if (strncmp(argv[i], "-", 1))
         {
-            //if (fileFlag)
-            //{
-            //    printf ("ERROR: TOO MANY FILES SPECIFIED.\n");
-            //    return 0;
-            //}
-            if (strcmp(argv[i], "pager.in")){
-            strcpy(infile, argv[i]);
+            if (fileFlag)
+            {
+                printf("ERROR: TOO MANY FILES SPECIFIED\n");
+                return 0;
+            }
+            if (strcmp(argv[i], "pager.in"))
+            {
+                strcpy(infile, argv[i]);
             }
             fileFlag = TRUE;
+            continue;
         }
-
-        //set the maximum memory location
-        maxMemAddress = memorySize - 1;
-        if (memorySize % pagesize != 0)
-        {
-            printf("ERROR: MEMORY MUST BE DIVISIBLE BY PAGE SIZE.\n");
-            return 0;
-        }
-        //set the number of pages
-        numPages = memorySize / pagesize;
-        //set the size of our page table (number of frames) EDIT LATER
-        //test for base 2 stuff
-        table.size = numFrames;
+    }
+    //set the maximum memory location
+    maxMemAddress = memorySize - 1;
+    if (memorySize % pagesize != 0)
+    {
+        printf("ERROR: MEMORY MUST BE DIVISIBLE BY PAGE SIZE.\n");
+        return 0;
     }
 
     file = fopen(infile, "r");
@@ -153,7 +195,6 @@ int main(int argc, char *argv[])
             while (fscanf(file, "%s", memLocationString) != EOF)
             {
                 //take in the line & save values
-                printf("read in: %s\n", memLocationString);
                 currentMemLocation = isArgNum(memLocationString);
                 if (currentMemLocation == -1)
                 {
@@ -181,9 +222,15 @@ int main(int argc, char *argv[])
     else
     {
         //error if an input file is not found
-        printf("ERROR: INPUT FILE NOT FOUND\n");
+        printf("ERROR: INPUT FILE \'%s\' NOT FOUND\n", infile);
         return 0;
     }
+
+    //set the number of pages
+    numPages = memorySize / pagesize;
+    //set the size of our page table (number of frames) EDIT LATER
+    //test for base 2 stuff
+    table.size = numFrames;
 
     //initialize frames' valid bit
     for (int i = 0; i < table.size; i++)
@@ -192,54 +239,65 @@ int main(int argc, char *argv[])
         table.frames[i].validBit = FALSE;
     }
 
-    printf("process name: %s\n", processName);
-    printf("Type: ");
-    if (algCode == FIFO_CODE)
-    {
-        printf("FIFO\n");
-    }
-    if (algCode == LRU_CODE)
-    {
-        printf("LRU\n");
-    }
-    if (algCode == MFU_CODE)
-    {
-        printf("MFU\n");
-    }
-    if (algCode == RANDOM_CODE)
-    {
-        printf("RANDOM\n");
-    }
-
     switch (algCode)
     {
     case FIFO_CODE:
-        printf("Doing a FIOFO\n");
         numPageFaults = FIFO(&table, memoryLocations, numMemLocations, pagesize);
         break;
     case LRU_CODE:
-        printf("Doing a LRU\n");
         numPageFaults = LRU(&table, memoryLocations, numMemLocations, pagesize);
         break;
     case MFU_CODE:
-        printf("Doing a MFU\n");
-        numPageFaults = MFU(&table, memoryLocations, numMemLocations, pagesize);;
+        numPageFaults = MFU(&table, memoryLocations, numMemLocations, pagesize);
+        ;
         break;
     case RANDOM_CODE:
-        printf("Doing a MFU\n");
-        numPageFaults = Random(&table, memoryLocations, numMemLocations, pagesize);;
+        numPageFaults = Random(&table, memoryLocations, numMemLocations, pagesize);
+        ;
         break;
     default:
         printf("ERROR: YOU HAVE ENTERED AN INVALID ALGORITHM\n"); // It should never get here, but black magic exists, so just in case.
         return 0;
         break;
     }
+    if (verbose)
+    {
+        printf("Process name: %s\n", processName);
+        printf("Paging algorithm type: ");
+        if (algCode == FIFO_CODE)
+        {
+            printf("FIFO\n");
+        }
+        if (algCode == LRU_CODE)
+        {
+            printf("LRU\n");
+        }
+        if (algCode == MFU_CODE)
+        {
+            printf("MFU\n");
+        }
+        if (algCode == RANDOM_CODE)
+        {
+            printf("RANDOM\n");
+        }
+        printf("Pagesize: %d\n", pagesize);
+        printf("Number of frames: %d\n", numFrames);
+        printf("Number of pages: %d\n", numPages);
+        printf("Memory size: %d\n", memorySize);
+        if (verbose == 2)
+        {
+            printf("Memory locations entered and pages associated:\n");
+            for (int i = 0; i < numMemLocations; i++)
+            {
+                printf("\tMemory Location %d is on page %i\n", memoryLocations[i], memoryLocations[i] / pagesize);
+            }
+        }
+    }
 
-    printf("\n\n*** NUMBER OF PAGE FAULTS: %d ***\n\n", numPageFaults);
+    printf("\n*** Number of page faults for %s: %d ***\n\n", processName, numPageFaults);
 }
 
-//FUNCTIONS
-
+///FUNCTIONS
 int isArgNum(char stringIn[])
 {
     int j, outNum;

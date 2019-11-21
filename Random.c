@@ -24,9 +24,7 @@ int Random(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pa
                 if (!(table->frames[i].validBit) && !(tableCheck(*table, pageNum)))
                 {
                     pageFault(&table->frames[i], pageNum);
-                    printf("1. page fault at frame %d with location %d.\n", i, memoryLocations[j]);
                     table->frames[i].validBit = TRUE;
-                    printf("on pageNum %d\n", pageNum);
                     faulted = TRUE;
                 }
             }
@@ -34,7 +32,6 @@ int Random(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pa
             {
 				int rand = getRandom(table->size);
                 pageFault(&table->frames[rand], pageNum);
-                printf("2. page fault at frame %d with location %d, page %d.\n", rand, memoryLocations[j], pageNum);
             }
 
             pageFaults++;

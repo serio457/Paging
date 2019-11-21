@@ -5,7 +5,6 @@
   Randomizes what page to replace
   Takes in a index size and returns an index number to replace
 */
-#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include "pageTable.h"

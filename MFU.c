@@ -1,5 +1,4 @@
 #include "MFU.h"
-#include <stdio.h>
 
 int MFU(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pagesize)
 {
@@ -24,10 +23,8 @@ int MFU(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pages
                 if (!(table->frames[i].validBit) && !(tableCheck(*table, pageNum)))
                 {
                     pageFault(&table->frames[i], pageNum);
-                    printf("1. page fault at frame %d with location %d.\n", i, memoryLocations[j]);
                     resetFrequency(pageFrequency, MFU);
                     table->frames[i].validBit = TRUE;
-                    printf("on pageNum %d\n", pageNum);
                     faulted = TRUE;
                 }
             }
@@ -35,7 +32,6 @@ int MFU(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pages
             if (!faulted)
             {
                 pageFault(&table->frames[MFU], pageNum);
-                printf("2. page fault at frame %d with location %d.\n", MFU, memoryLocations[j]);
             }
             resetFrequency(pageFrequency, MFU);
 
