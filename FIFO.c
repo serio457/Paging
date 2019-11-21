@@ -1,3 +1,9 @@
+//// Fran, Perry, Nick
+//// Fall 2019
+//// CS3074 Project 4
+//// FILE:FIFO.c
+//// Takes in a page table and returns the number of page faults to the completion of the process using First In First Out
+
 #include "FIFO.h"
 #include <stdio.h>
 

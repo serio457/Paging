@@ -1,10 +1,8 @@
-/*Fran, Perry, Nick 
-  Fall 2019
-  CS3074 Project 4
-  FILE: Random.h
-  Randomizes what page to replace
-  Takes in a index size and returns an index number to replace
-*/
+//// Fran, Perry, Nick
+//// Fall 2019
+//// CS3074 Project 4
+//// FILE:Random.c
+//// Randomizes what page to replace and returns the number of faults that occurred
 
 #include "Random.h"
 

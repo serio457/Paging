@@ -1,3 +1,9 @@
+//// Fran, Perry, Nick
+//// Fall 2019
+//// CS3074 Project 4
+//// FILE:Frame.h
+//// Defines the structure for a FRAME
+
 #include "Page.h"
 
 #ifndef FRAME_H
@@ -7,10 +13,10 @@
 #define FALSE 0
 typedef int BOOL;
 
-
-typedef struct {
+typedef struct
+{
     PAGE page;
     BOOL validBit;
-}FRAME;
+} FRAME;
 
 #endif

@@ -1,3 +1,9 @@
+//// Fran, Perry, Nick
+//// Fall 2019
+//// CS3074 Project 4
+//// FILE:MFU.c
+//// Takes in a page table and returns the number of page faults to the completion of the process using Most Frequently Used
+
 #include "MFU.h"
 
 int MFU(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pagesize)

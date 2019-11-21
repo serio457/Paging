@@ -1,3 +1,9 @@
+//// Fran, Perry, Nick
+//// Fall 2019
+//// CS3074 Project 4
+//// FILE:LRU.c
+//// Takes in a page table and returns the number of page faults to the completion of the process using Least Recently Used
+
 #include "LRU.h"
 
 int LRU(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pagesize)
@@ -50,17 +56,17 @@ int findLRU(int pageTimeInTable[], int count)
     return LRUFrame;
 }
 
-void iterateAllButUsed(int pageFrequencies[], int count, int frameUsed)
+void iterateAllButUsed(int pageTimeInTable[], int count, int frameUsed)
 {
     for (int i = 0; i < count; i++)
     {
         if (i != frameUsed)
         {
-            pageFrequencies[i]++;
+            pageTimeInTable[i]++;
         }
         else
         {
-            pageFrequencies[i] = 0;
+            pageTimeInTable[i] = 0;
         }
     }
 }
