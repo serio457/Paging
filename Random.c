@@ -9,6 +9,7 @@
 int Random(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pagesize)
 {
     int pageFaults = 0;
+    int rand;
     PAGE pageNum;
     BOOL faulted = FALSE;
 
@@ -17,22 +18,21 @@ int Random(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pa
         pageNum = memoryLocations[j] / pagesize;
         if (!tableCheck(*table, pageNum)) // if page number is not in the table...
         {
-            for (int i = 0; i < table->size; i++)
+            for (int i = 0; i < getTableSize(*table); i++)
             {
                 // case for when frames are empty
                 if (!(table->frames[i].validBit) && !(tableCheck(*table, pageNum)))
                 {
-                    pageFault(&table->frames[i], pageNum);
-                    table->frames[i].validBit = TRUE;
+                    pageFault(getFrame(table, i), pageNum);
+                    *getValid(getFrame(table, i)) = TRUE;
                     faulted = TRUE;
                 }
             }
             if (!faulted)
             {
-				int rand = getRandom(table->size); // pick a random frame at which to page fault
-                pageFault(&table->frames[rand], pageNum);
+				rand = getRandom(getTableSize(*table)); // pick a random frame at which to page fault
+                pageFault(getFrame(table, rand), pageNum);
             }
-
             pageFaults++;
         }
         faulted = FALSE;

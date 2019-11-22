@@ -11,10 +11,10 @@ int LRU(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pages
     int pageFaults = 0;
     int LRU = 0;
     PAGE pageNum;
-    int pageTimeInTable[table->size]; // array that keeps track of the "time" that a page has been in a frame
+    int pageTimeInTable[getTableSize(*table)]; // array that keeps track of the "time" that a page has been in a frame
 
     // initialize all times to 0
-    for (int i = 0; i < table->size; i++)
+    for (int i = 0; i < getTableSize(*table); i++)
     {
         pageTimeInTable[i] = 0;
     }
@@ -24,21 +24,21 @@ int LRU(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int pages
         pageNum = memoryLocations[j] / pagesize;
         if (!tableCheck(*table, pageNum)) // if a page is not in the table...
         {
-            for (int i = 0; i < table->size; i++)
+            for (int i = 0; i < getTableSize(*table); i++)
             {
                 // case for when frames are empty
-                if (!(table->frames[i].validBit) && !(tableCheck(*table, pageNum)))
+                if (!(*getValid(getFrame(table, i))) && !(tableCheck(*table, pageNum)))
                 {
-                    pageFault(&table->frames[i], pageNum);
-                    table->frames[i].validBit = TRUE;
+                    pageFault(getFrame(table, i), pageNum);
+                    *getValid(getFrame(table, i)) = TRUE;
                 }
             }
-            LRU = findLRU(pageTimeInTable, table->size); // find the page that was least recently used
-            pageFault(&table->frames[LRU], pageNum);
+            LRU = findLRU(pageTimeInTable, getTableSize(*table)); // find the page that was least recently used
+            pageFault(getFrame(table, LRU), pageNum);
 
             pageFaults++;
         }
-        iterateAllButUsed(pageTimeInTable, table->size, LRU); // increment the "time" for those page that were not used
+        iterateAllButUsed(pageTimeInTable, getTableSize(*table), LRU); // increment the "time" for those page that were not used
     }
     return pageFaults;
 }

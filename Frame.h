@@ -19,4 +19,10 @@ typedef struct
     BOOL validBit;
 } FRAME;
 
+///Get Page from Frame
+///Returns the address of a page
+PAGE *getPage (FRAME *frame);
+///Get Valid Bit
+///Returns the address of the Valid Bit
+BOOL *getValid (FRAME *frame);
 #endif

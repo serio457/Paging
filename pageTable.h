@@ -29,4 +29,13 @@ void pageFault(FRAME *frame, PAGE page);
 ///Table Check
 ///Searches a table for a page and returns TRUE (1) or FALSE (0) if the page was found
 BOOL tableCheck(PAGETABLE table, PAGE page);
+///Set Table Size
+///Takes in a table and the size to assign
+void setTableSize (PAGETABLE *table, int size);
+///Table Size
+///Returns the size of a Page Table
+int getTableSize (PAGETABLE table);
+///Get Table Frame
+///Takes in a Page Table and Frame number and returns the address of that frame
+FRAME *getFrame (PAGETABLE *table, int index);
 #endif

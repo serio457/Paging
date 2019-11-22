@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
             numFrames = isArgNum(argv[i + 1]);
             if (numFrames == -1)
             {
-                printf("ERROR: FRAMES MUST BE A POSITIVE, NON-ZERO INTEGER.\n"); 
+                printf("ERROR: FRAMES MUST BE A POSITIVE, NON-ZERO INTEGER.\n");
                 return 0;
             }
             i++;
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
             memorySize = isArgNum(argv[i + 1]);
             if (memorySize == -1)
             {
-                printf("ERROR: MEMORY MUST BE A POSITIVE, NON-ZERO INTEGER.\n"); 
+                printf("ERROR: MEMORY MUST BE A POSITIVE, NON-ZERO INTEGER.\n");
                 return 0;
             }
             memoryFlag = TRUE;
@@ -140,14 +140,15 @@ int main(int argc, char *argv[])
             pagesize = isArgNum(argv[i + 1]);
             if (pagesize == -1)
             {
-                printf("ERROR: PAGESIZE MUST BE A POSITIVE, NON-ZERO INTEGER.\n"); 
+                printf("ERROR: PAGESIZE MUST BE A POSITIVE, NON-ZERO INTEGER.\n");
             }
             i++;
             continue;
         }
         if (!strncmp(argv[i], "-v", 2))
         {
-            if (verbose) {
+            if (verbose)
+            {
                 printf("ERROR: MULTIPLE INSTANCES OF \'VERBOSE\' FLAG\n");
                 return 0;
             }
@@ -159,13 +160,16 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        if (!strcmp(argv[i], "-help")){
+        if (!strcmp(argv[i], "-help"))
+        {
             printf("-type: selects paging algorithm; Options are the following: FIFO, LRU, MFU, and Random\n\n");
             printf("-frames: sets the number of physical frames available\n\n");
             printf("-memory: sets the size of memory in bytes\n\n");
             printf("-pagesize: sets the size of the page in decimal number of bytes\n\n");
             printf("file name can be specified, default is pager.in\n\n");
-            return(0);
+            printf("-v: displays information about the process\n\n");
+            printf("-vv: displays information about the process and the memory locations being accessed\n\n");
+            return (0);
         }
         //checking for infile argument by seeing if previous argument had a hyphen
         if (strncmp(argv[i], "-", 1))
@@ -238,13 +242,13 @@ int main(int argc, char *argv[])
     numPages = memorySize / pagesize;
     //set the size of our page table (number of frames) EDIT LATER
     //test for base 2 stuff
-    table.size = numFrames;
+    setTableSize(&table, numFrames);
 
     //initialize frames' valid bit
-    for (int i = 0; i < table.size; i++)
+    for (int i = 0; i < getTableSize(table); i++)
     {
-        table.frames[i].page = -1;
-        table.frames[i].validBit = FALSE;
+        *getPage(getFrame(&table, i)) = -1;
+        *getValid(getFrame(&table, i)) = FALSE;
     }
     // use case to determine which "-type" to use
     switch (algCode)

@@ -16,20 +16,20 @@ int FIFO(PAGETABLE *table, PAGE memoryLocations[], int numMemLocations, int page
         pageNum = memoryLocations[j]/pagesize;
         if (!tableCheck(*table, pageNum)) // if page number is not in the table...
         {
-            for (int i = 0; i < table->size; i++)
+            for (int i = 0; i < getTableSize(*table); i++)
             {
                 // case for when frames are empty
-                if (!(table->frames[i].validBit) && !(tableCheck(*table, pageNum)))
+                if (!(*getValid(getFrame(table, i))) && !(tableCheck(*table, pageNum)))
                 {
-                    pageFault(&table->frames[i], pageNum);
-                    table->frames[i].validBit = TRUE;
+                    pageFault(getFrame(table, i), pageNum);
+                    *getValid(getFrame(table, i)) = TRUE;
                 }
             }
-            pageFault(&table->frames[firstIn], pageNum);
+            pageFault(getFrame(table, firstIn), pageNum);
             pageFaults++;
             // set the next frame to be the firstIn after page fault occurs
             firstIn++;
-            if (firstIn == table->size)
+            if (firstIn == getTableSize(*table))
             {
                 firstIn = 0;
             }
