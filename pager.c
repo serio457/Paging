@@ -167,8 +167,7 @@ int main(int argc, char *argv[])
             printf("-memory: sets the size of memory in bytes\n\n");
             printf("-pagesize: sets the size of the page in decimal number of bytes\n\n");
             printf("file name can be specified, default is pager.in\n\n");
-            printf("-v: displays information about the process\n\n");
-            printf("-vv: displays information about the process and the memory locations being accessed\n\n");
+            printf("-v[v]: displays information about the process [and the memory locations being accessed]\n\n");
             return (0);
         }
         //checking for infile argument by seeing if previous argument had a hyphen

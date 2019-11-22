@@ -1,5 +1,5 @@
-pager: pager.o pageTable.o FIFO.o LRU.o MFU.o Random.o Page.o Frame.o
-	gcc -o pager pager.o pageTable.o FIFO.o LRU.o MFU.o Random.o Page.o Frame.o
+pager: pager.o pageTable.o FIFO.o LRU.o MFU.o Random.o Frame.o
+	gcc -o pager pager.o pageTable.o FIFO.o LRU.o MFU.o Random.o Frame.o
 
 pager.o: pager.c pager.h
 	gcc -c pager.c
@@ -19,8 +19,5 @@ MFU.o: MFU.c MFU.h
 Random.o: Random.c Random.h
 	gcc -c Random.c
 
-Page.o: Page.c Page.h
-	gcc -c Page.c
-
-Frame.o: Frame.c Frame.h
+Frame.o: Frame.c Frame.h Page.h
 	gcc -c Frame.c
