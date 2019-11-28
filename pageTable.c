@@ -1,22 +1,39 @@
-#include "pageTable.h"
-#include <stdio.h>
+//// Fran, Perry, Nick
+//// Fall 2019
+//// CS3074 Project 4
+//// FILE:pageTable.c
+//// Defines a pageTable as an array of frames and an integer for size
 
-void pageFault (FRAME *frame, PAGE page)
+#include "pageTable.h"
+
+void pageFault(FRAME *frame, PAGE page)
 {
-    frame->page = page;
+    *getPage(frame) = page;
 }
 
-BOOL tableCheck (PAGETABLE table, PAGE page)
+BOOL tableCheck(PAGETABLE table, PAGE page)
 {
-    for (int i=0; i<table.size; i++)
+    for (int i = 0; i < getTableSize(table); i++)
     {
-        if (table.frames[i].page == page)
+        if (*getPage(getFrame(&table, i)) == page)
         {
-            //printf ("returning true on frame %d with page %d\n", i, page);
             return TRUE;
         }
-            //printf ("false on frame %d (page %d) with page %d\n", i, table.frames[i].page, page);
     }
-    //printf ("returning false with page %d\n", page);
     return FALSE;
+}
+
+void setTableSize (PAGETABLE *table, int size)
+{
+    table->size = size;
+}
+
+int getTableSize (PAGETABLE table)
+{
+    return table.size;
+}
+
+FRAME *getFrame (PAGETABLE *table, int index)
+{
+    return &table->frames[index];
 }
